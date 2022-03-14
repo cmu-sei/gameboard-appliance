@@ -137,11 +137,11 @@ sed -i -r 's/(GRUB_CMDLINE_LINUX_DEFAULT=).*/\1"quiet net.ifnames=0 biosdevname=
 update-grub
 
 # Ensure scrits are executable
-chmod +x ../common/certs/*.sh \
-  ../common/setup* \
-  ../foundry/setup* \
-  ../foundry/import-content \
-  ../crucible/setup* \
-  ../foundry/import-content \
-  ../setup* 
+chmod +x /home/foundry/common/certs/*.sh \
+  /home/foundry/common/setup* \
+  /home/foundry/foundry/setup* \
+  /home/foundry/foundry/import-content \
+  /home/foundry/crucible/setup* \
+  /home/foundry/foundry/import-content \
+  /home/foundry/setup* 
 reboot
