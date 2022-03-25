@@ -3,7 +3,7 @@
 #[ `whoami` = root ] || { sudo "$0" "$@"; exit $?; }
 DIRECTORY=$(dirname "$BASH_SOURCE[0]")
 cd $DIRECTORY
-source ../scripts/utils
+source ~/scripts/utils
 EXPORTS_PATH="./seed/gitlab"
 GITLAB_TIMEOUT=0
 MAX_GITLAB_TIMEOUT=1200

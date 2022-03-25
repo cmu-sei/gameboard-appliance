@@ -11,7 +11,12 @@
 # Change to the current directory
 cd "$(dirname "${BASH_SOURCE[0]}")"
 root_dir=/home/foundry
-source ../scripts/utils
+source ~/scripts/utils
+
+# Create common namespace and switch to it
+kubectl apply -f namespace.yaml
+kubectl config set-context --current --namespace=crucible
+
 # dependancy installs
 ./setup-gitlab
 

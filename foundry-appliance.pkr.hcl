@@ -80,14 +80,10 @@ build {
   provisioner "file" {
     destination = "/home/${var.ssh_username}/"
     sources      = [
-      "./common",
       "./foundry",
-      "./crucible",
-      "./charts",
       "./scripts",
-      "setup",
       "reset",
-      "appliance.vars"
+      "appliance-vars"
     ]
   }
 
@@ -118,7 +114,7 @@ build {
 
   provisioner "shell" {
     inline = [
-      "~/setup ${var.apps}",
+      "~/foundry/install.sh ${var.apps}",
     ]
   }
   
