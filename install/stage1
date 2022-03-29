@@ -97,6 +97,15 @@ rm /home/foundry/$SSH_USERNAME/foundry-banner
 sed -i "s/{version}/$APPLIANCE_VERSION/" ~/mkdocs/docs/index.md
 echo -e "Foundry Appliance $APPLIANCE_VERSION \\\n \l \n" > /etc/issue
 
+# Ensure scripts are executable 
+chmod +x \
+~/foundry/certs/generate-certs \
+~/foundry/common/install.sh \
+~/foundry/common/setup-gitea \
+~/foundry/crucible/install.sh \
+~/foundry/crucible/setup-gitlab \
+~/foundry/topomojo/install.sh
+
 # Enable quiet boot and reboot for changes to take effect
 sed -i -r 's/(GRUB_CMDLINE_LINUX_DEFAULT=).*/\1"quiet net.ifnames=0 biosdevname=0"/' /etc/default/grub
 update-grub
