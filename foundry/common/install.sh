@@ -40,23 +40,23 @@ kubectl create secret generic appliance-root-ca --from-file=appliance-root-ca=..
 kubectl create configmap appliance-root-ca --from-file=root-ca.crt=../certs/root-ca.pem --dry-run=client -o yaml | kubectl apply -f -
 
 # Install NFS server
-helm_deploy -r ../../appliance-vars -u -p ~/.helm -f nfs-server-provisioner.values.yaml kvaps/nfs-server-provisioner
+hin_o -r ../../appliance-vars -u -p ~/.helm -f nfs-server-provisioner.values.yaml kvaps/nfs-server-provisioner
 
 # Install ingress-nginx
-helm_deploy -r ../../appliance-vars -u -p ~/.helm -f ingress-nginx.values.yaml ingress-nginx/ingress-nginx 
+hin_o -r ../../appliance-vars -u -p ~/.helm -w -f ingress-nginx.values.yaml ingress-nginx/ingress-nginx 
 
 # Install PostgreSQL
-helm_deploy -r ../../appliance-vars -u -p ~/.helm -f postgresql.values.yaml bitnami/postgresql
+hin_o -r ../../appliance-vars -u -p ~/.helm -w -f postgresql.values.yaml bitnami/postgresql
 
 # Install pgAdmin4
 kubectl create secret generic pgpassfile --from-literal=pgpassfile=postgresql:5432:\*:postgres:foundry --dry-run=client -o yaml | kubectl apply -f -
-helm_deploy -r ../../appliance-vars -u -p ~/.helm -f pgadmin4.values.yaml runix/pgadmin4
+hin_o -r ../../appliance-vars -u -p ~/.helm -f pgadmin4.values.yaml runix/pgadmin4
 
 # Install code-server (browser-based VS Code)
-helm_deploy -r ../../appliance-vars -u -p ~/.helm -f code-server.values.yaml nicholaswilde/code-server
+hin_o -r ../../appliance-vars -u -p ~/.helm -f code-server.values.yaml nicholaswilde/code-server
 
 # Kubernetes Dashboard
-helm_deploy -r ../../appliance-vars -u -p ~/.helm -f kubernetes-dashboard.values.yaml kubernetes-dashboard/kubernetes-dashboard
+hin_o -r ../../appliance-vars -u -p ~/.helm -f kubernetes-dashboard.values.yaml kubernetes-dashboard/kubernetes-dashboard
 
 # Add root CA to chart values
 ed -s mkdocs-material.values.yaml <<< $'/cacert:/s/\"\"/|-/\n/cacert:/r !sed "s/^/  /" ../certs/root-ca.pem\nw'
@@ -65,11 +65,11 @@ cp ../certs/root-ca.pem ../../mkdocs/docs/root-ca.crt
 # Install Gitea
 git config --global init.defaultBranch main
 kubectl exec postgresql-0 -- psql 'postgresql://postgres:foundry@localhost' -c 'CREATE DATABASE gitea;' || true
-helm_deploy -r ../../appliance-vars -u -p ~/.helm -f gitea.values.yaml gitea/gitea
+hin_o -r ../../appliance-vars -u -p ~/.helm -f gitea.values.yaml gitea/gitea
 timeout 5m bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://foundry.local/gitea)" != "200" ]]; do sleep 5; done' || false
 ./setup-gitea
 
 # Foundry Stack install
 
-helm_deploy -r ../../appliance-vars -u -v 0.2.0 -p ~/.helm -f identity.values.yaml sei/identity
-helm_deploy -r ../../appliance-vars -u -p ~/.helm -f mkdocs-material.values.yaml sei/mkdocs-material
+hin_o -r ../../appliance-vars -u -v 0.2.0 -p ~/.helm -f identity.values.yaml sei/identity
+hin_o -r ../../appliance-vars -u -p ~/.helm -f mkdocs-material.values.yaml sei/mkdocs-material

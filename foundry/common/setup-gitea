@@ -40,7 +40,7 @@ curl "${CURL_OPTS[@]}" \
 }
 EOF
 
-git -C $MKDOCS_DIR init
-git -C $MKDOCS_DIR add -A
-git -C $MKDOCS_DIR commit -m "Initial commit"
-git -C $MKDOCS_DIR push -u https://administrator:foundry@foundry.local/gitea/foundry/mkdocs.git --all
+git -C $MKDOCS_DIR init || true
+git -C $MKDOCS_DIR add -A || true
+git -C $MKDOCS_DIR commit -m "Initial commit" || true
+git -C $MKDOCS_DIR push -u https://administrator:foundry@foundry.local/gitea/foundry/mkdocs.git --all || true

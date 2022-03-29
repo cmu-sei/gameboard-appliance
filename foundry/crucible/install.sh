@@ -13,34 +13,37 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 root_dir=/home/foundry
 source ~/scripts/utils
 
-# Create common namespace and switch to it
+# Create crucible namespace and switch to it
 kubectl apply -f namespace.yaml
 kubectl config set-context --current --namespace=crucible
+
+# Add host certificate
+kubectl create secret tls appliance-cert --key ../certs/host-key.pem --cert <( cat ../certs/host.pem ../certs/int-ca.pem ) --dry-run=client -o yaml | kubectl apply -f -
+
+# Add root ca
+kubectl create secret generic appliance-root-ca --from-file=appliance-root-ca=../certs/root-ca.pem --dry-run=client -o yaml | kubectl apply -f -
+kubectl create configmap appliance-root-ca --from-file=root-ca.crt=../certs/root-ca.pem --dry-run=client -o yaml | kubectl apply -f -
 
 # dependancy installs
 ./setup-gitlab
 
-helm_deploy --wait -u -p ../helm -f mongodb.values.yaml bitnami/mongodb
-#helm upgrade --wait --install -f mongodb.values.yaml mongodb bitnami/mongodb
+hin_o --wait -u -p ../helm -f mongodb.values.yaml bitnami/mongodb
+kubectl apply -f stackstorm-ingress.yaml
 if [ -f $root_dir/crucible/vcenter.env ]; then 
   import_vars $root_dir/crucible/vcenter.env
   # decrypt Password
   VSPHERE_PASS=$(decrypt_string $VSPHERE_PASS)
-  helm_deploy -r $root_dir/crucible/vcenter.env -u -p ../helm --version 0.80.0 --wait --timeout 10m -f stackstorm-min.values.yaml stackstorm/stackstorm-ha
+  hin_o -r $root_dir/crucible/vcenter.env -p ../helm -u -v 1.4.0 -f steamfitter.values.yaml sei/steamfitter  
+  hin_o -r $root_dir/crucible/vcenter.env -p ../helm -u -v 1.4.1 -f caster.values.yaml sei/caster
   #envsubst < stackstorm-min.values.yaml | helm upgrade --wait --install --timeout 10m -f - stackstorm stackstorm/stackstorm-ha
 else
-  helm_deploy -u -p ../helm --wait --timeout 10m --version 0.80.0 -f stackstorm-min.values.yaml stackstorm/stackstorm-ha
-  #helm upgrade --wait --install --timeout 10m -f stackstorm-min.values.yaml stackstorm stackstorm/stackstorm-ha
+  hin_o -p ../helm -u -v 1.4.0 -f steamfitter.values.yaml sei/steamfitter  
+  hin_o -p ../helm -u -v 1.4.1 -f caster.values.yaml sei/caster
 fi
-kubectl apply -f stackstorm-ingress.yaml
+
 
 # Crucible Stack install
-helm_deploy -r ../appliance.vars -p ../helm -u -v 1.4.1 -f player.values.yaml sei/player
-helm_deploy -r ../appliance.vars -p ../helm -u -v 1.4.1 -f caster.values.yaml sei/caster
-helm_deploy -r ../appliance.vars -p ../helm -u -v 1.4.0 -f alloy.values.yaml sei/alloy
-helm_deploy -r ../appliance.vars -p ../helm -u -v 1.4.0 -f steamfitter.values.yaml sei/steamfitter
-#helm upgrade --wait --install -f player.values.yaml player ../charts/player 
-#helm upgrade --wait --install -f caster.values.yaml caster ../charts/caster
+hin_o -r ../../appliance-vars -p ../helm -u -v 1.4.1 -f player.values.yaml sei/player
+hin_o -r ../../appliance-vars -p ../helm -u -v 1.4.0 -f alloy.values.yaml sei/alloy
+hin_o -u -p ../helm --version 0.80.0 --wait --timeout 10m -f stackstorm-min.values.yaml stackstorm/stackstorm-ha
 
-#helm upgrade --wait --install -f steamfitter.values.yaml steamfitter ../charts/steamfitter
-#helm upgrade --wait --install -f alloy.values.yaml alloy ../charts/alloy
