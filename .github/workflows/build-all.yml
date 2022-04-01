@@ -3,7 +3,6 @@ name: build-all
 on:
   push:
     branches:
-      - crucible
       - dev
   pull_request:
   release:
@@ -32,7 +31,7 @@ jobs:
         command: ./build-appliance virtualbox topomojo,crucible -var "cpus=6" -var "memory=10240" -var "disk_size=51200"
 
     - name: Get build_name from OVF file
-      run: echo "build_name=$(sh -c "find . -name '*.ovf' | xargs basename -s '-all.ovf'")" >> $GITHUB_ENV
+      run: echo "build_name=$(sh -c "find . -name '*.ovf' | xargs basename -s '.ovf'")" >> $GITHUB_ENV
       working-directory: ./output-virtualbox
 
     - name: Update OVF for VMWare Compatability
