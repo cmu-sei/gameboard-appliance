@@ -25,7 +25,7 @@ echo "deb https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sour
 apt-get update
 apt-get full-upgrade -y
 
-apt-get install -y dnsmasq avahi-daemon jq nfs-common sshpass kubectl helm
+apt-get install -y dnsmasq avahi-daemon jq nfs-common sshpass kubectl helm postgresql-client
 
 # Stop multipathd errors in syslog
 cat <<EOF >> /etc/multipath.conf
