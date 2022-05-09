@@ -85,7 +85,7 @@ cd $root_dir/crucible
 
 # get MOID for steamfitter
 echo "Attempting to get vsphere cluster"
-MOID=$(pwsh -c 'Connect-VIServer -server $env:VSPHERE_SERVER -user $env:VSPHERE_USER -password $env:VSPHERE_PASS | Out-Null; Get-Cluster -Name $env:VSPHERE_CLUSTER | select id | %{$arr = $_.id.split("-"); write-host ($arr[1..($arr.length)] -join "-")}')
+MOID=$(pwsh -c 'Connect-VIServer -server $env:VSPHERE_SERVER -user $env:VSPHERE_USER -password $env:VSPHERE_PASS | Get-Cluster -Name $env:VSPHERE_CLUSTER | select id | %{$arr = $_.id.split("-"); write-host ($arr[1..($arr.length)] -join "-")}')
 echo "${MOID}"
 if [[ -n ${MOID} ]]; then
   sed -i "s/ VmTaskProcessing__ApiParameters__clusters:.*/ VmTaskProcessing__ApiParameters__clusters: ${MOID}/" "steamfitter.values.yaml"
@@ -100,9 +100,9 @@ read -e -p "Would you like to import sample content (THIS WILL DELETE ANY EXISTI
 if [[ $IMPORT_CONTENT = y ]]; then 
   ./import-content
 else 
-  hin_o -r vcenter.env -p ../helm -u -v 1.4.1 -f player.values.yaml sei/player
-  hin_o -r vcenter.env -p ../helm -u -v 1.4.1 -f caster.values.yaml sei/caster
-  hin_o -r vcenter.env -p ../helm -u -v 1.4.0 -f alloy.values.yaml sei/alloy
-  hin_o -r vcenter.env -p ../helm -u -v 1.4.0 -f steamfitter.values.yaml sei/steamfitter
-  hin_o -u -p ../helm --version 0.80.0 --wait --timeout 10m -f stackstorm-min.values.yaml stackstorm/stackstorm-ha
+  hin_o -r vcenter.env -p ~/.helm -u -v 1.4.1 -f player.values.yaml sei/player
+  hin_o -r vcenter.env -p ~/.helm -u -v 1.4.1 -f caster.values.yaml sei/caster
+  hin_o -r vcenter.env -p ~/.helm -u -v 1.4.0 -f alloy.values.yaml sei/alloy
+  hin_o -r vcenter.env -p ~/.helm -u -v 1.4.0 -f steamfitter.values.yaml sei/steamfitter
+  hin_o -u -p ~/.helm --version 0.80.0 --wait --timeout 10m -f stackstorm-min.values.yaml stackstorm/stackstorm-ha
 fi
