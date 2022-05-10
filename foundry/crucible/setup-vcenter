@@ -85,7 +85,8 @@ cd $root_dir/crucible
 
 # get MOID for steamfitter
 echo "Attempting to get vsphere cluster"
-MOID=$(pwsh -c 'Connect-VIServer -server $env:VSPHERE_SERVER -user $env:VSPHERE_USER -password $env:VSPHERE_PASS | Get-Cluster -Name $env:VSPHERE_CLUSTER | select id | %{$arr = $_.id.split("-"); write-host ($arr[1..($arr.length)] -join "-")}')
+MOID=$(pwsh -c 'Connect-VIServer -server $env:VSPHERE_SERVER -user $env:VSPHERE_USER -password $env:VSPHERE_PASS | Out-Null; Get-Cluster -Name $env:VSPHERE_CLUSTER | select -ExpandProperty id')
+MOID=$(echo "${MOID}" | rev | cut -d '-' -f 1,2 | rev)
 echo "${MOID}"
 if [[ -n ${MOID} ]]; then
   sed -i "s/ VmTaskProcessing__ApiParameters__clusters:.*/ VmTaskProcessing__ApiParameters__clusters: ${MOID}/" "steamfitter.values.yaml"
