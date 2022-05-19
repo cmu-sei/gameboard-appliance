@@ -4,7 +4,7 @@ identity-api:
 
   image:
     repository: cmusei/identity
-    tag: "1.3.7"
+    tag: "1.4.6"
 
   ingress:
     enabled: true
@@ -65,9 +65,9 @@ identity-api:
     Headers__Cors__AllowAnyOrigin: true
     Headers__Cors__AllowAnyMethod: true
     Headers__Cors__AllowAnyHeader: true
-    # Headers__Cors__Origins__0: "https://$DOMAIN"
-    # Headers__Cors__Origins__1: "http://localhost:4302"
-    # Headers__Cors__Origins__2: "http://localhost"
+    Headers__Cors__Origins__0: "https://$DOMAIN"
+    Headers__Cors__Origins__1: "http://localhost:4403"
+    Headers__Cors__Origins__2: "http://localhost"
     # Headers__Cors__Methods__0: "*"
     # Headers__Cors__Headers__0: "*"
     # Headers__Cors__AllowCredentials: true
@@ -379,12 +379,11 @@ identity-ui:
 
   image:
     repository: cmusei/identity-ui
-    tag: "1.3.7"
+    tag: "1.4.2"
 
   ingress:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: public
       nginx.ingress.kubernetes.io/use-regex: "true"
     hosts:
       - host: $DOMAIN
