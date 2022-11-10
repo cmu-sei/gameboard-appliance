@@ -1,7 +1,7 @@
 alloy-api:
   image: 
     repository: cmusei/alloy-api
-    tag: '3.3.1'
+    tag: '3.4.0'
   command: ["bash", "-c", "update-ca-certificates && dotnet Alloy.Api.dll"]
 
   ingress:
@@ -48,6 +48,8 @@ alloy-api:
     Authorization__AuthorizationScope: 'alloy-api player-api caster-api steamfitter-api vm-api'
     Authorization__ClientId: alloy-api
     Authorization__ClientName: 'Alloy API'
+    # Authorization__ValidateAudience: false
+    # Authorization__ValidAudiences: []
 
     # OAuth2 Identity Client /w Password
     ResourceOwnerAuthorization__Authority: https://$DOMAIN/keycloak/$OAUTH_AUTHORITY_URL
@@ -66,7 +68,7 @@ alloy-ui:
   image:
     repository: cmusei/alloy-ui
     pullPolicy: IfNotPresent
-    tag: '3.2.4'
+    tag: '3.2.5'
 
   ingress:
     enabled: true
