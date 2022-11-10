@@ -75,7 +75,7 @@ steamfitter-ui:
   image:
     repository: cmusei/steamfitter-ui
     pullPolicy: IfNotPresent
-    tag: "3.6.1"
+    tag: "3.6.3"
 
   ingress:
     enabled: true
