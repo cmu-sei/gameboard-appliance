@@ -2,7 +2,7 @@ caster-api:
   kind: "StatefulSet"
   image:
     repository: cmusei/caster-api
-    tag: '3.1.1'
+    tag: '3.1.3'
     pullPolicy: IfNotPresent
   command: [
     'bash',
@@ -71,6 +71,8 @@ caster-api:
     Authorization__TokenUrl: https://$DOMAIN/keycloak/$OAUTH_TOKEN_URL
     Authorization__AuthorizationScope: "caster-api"
     Authorization__ClientId: caster-api
+    # Authorization__ValidateAudience: false
+    # Authorization__ValidAudiences: []
 
 
     # OAuth2 Identity Client /w Password
@@ -118,7 +120,7 @@ caster-api:
 caster-ui:
   image:
     repository: cmusei/caster-ui
-    tag: '3.0.5'
+    tag: '3.1.1'
     pullPolicy: IfNotPresent
     
   ingress:
