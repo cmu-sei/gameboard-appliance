@@ -1,0 +1,112 @@
+#cloud-config
+chpasswd:
+  expire: false
+  users:
+    - name: root
+      password: ${root_password}
+      type: text
+
+write_files:
+  - path: /root/setup_proxmox.sh
+    permissions: "0755"
+    content: |
+      #!/bin/bash
+
+      MAX_RETRIES=50
+      RETRY_DELAY=10
+
+      if [[ $(hostname) =~ -0$ ]]; then
+        pvecm create proxmox
+      else
+        MY_IP=$(hostname -I | awk '{print $1}')
+        HOSTS_JSON=$(cat /root/proxmox_ips.json)
+        HOSTS_COUNT=$(echo "$HOSTS_JSON" | jq '. | length')
+        HOST_INDEX=-1
+
+        # Function to check a host's cluster status
+        check_host_cluster_status() {
+          local host_ip=$1
+          ssh -o StrictHostKeyChecking=no root@$host_ip "pvecm status" &> /dev/null
+          return $?
+        }
+
+        # Find host index in JSON array
+        for ((i=0; i<$HOSTS_COUNT; i++)); do
+          HOST_IP=$(echo "$HOSTS_JSON" | jq -r ".[$i]")
+          if [ "$HOST_IP" = "$MY_IP" ]; then
+            HOST_INDEX=$i
+            break
+          fi
+        done
+
+        PREVIOUS_HOST_INDEX=$((HOST_INDEX - 1))
+        PREVIOUS_HOST_IP=$(echo "$HOSTS_JSON" | jq -r ".[$PREVIOUS_HOST_INDEX]")
+
+        for ((retry=1; retry<=$MAX_RETRIES; retry++)); do
+          echo "Attempt $retry of $MAX_RETRIES to join cluster..."
+          if check_host_cluster_status "$PREVIOUS_HOST_IP"; then
+            cat /root/proxmox_pass.txt | /root/join_cluster.exp "$PREVIOUS_HOST_IP"
+            if [ $? -eq 0 ]; then
+              break
+            fi
+          fi
+          sleep $RETRY_DELAY
+        done
+      fi
+      rm /root/proxmox_pass.txt
+  - path: /root/.ssh/id_rsa
+    permissions: '0600'
+    owner: root:root
+    content: |
+      ${replace(root_ssh_private_key, "\n", "\n      ")}
+  - path: /root/.ssh/id_rsa.pub
+    permissions: '0644'
+    owner: root:root
+    content: |
+      ${root_ssh_public_key}
+  - path: /root/proxmox_pass.txt
+    permissions: "0600"
+    content: |
+      ${root_password}
+  - path: /root/proxmox_ips.json
+    permissions: "0644"
+    content: |
+      ${proxmox_private_ips}
+  - path: /root/join_cluster.exp
+    permissions: "0755"
+    content: |
+      #!/usr/bin/expect -f
+
+      set target_ip [lindex $argv 0]
+
+      send_user "Enter root password for $target_ip: "
+      expect_user -re "(.*)\n"
+      set password $expect_out(1,string)
+
+      set timeout 120
+
+      spawn pvecm add $target_ip
+
+      expect "Please enter superuser (root) password for*"
+      send "$password\r"
+
+      expect "Are you sure you want to continue connecting (yes/no)?"
+      send "yes\r"
+
+      expect {
+          "successfully added node*to cluster" {
+              puts "\nCluster join completed successfully!"
+              exit 0
+          }
+          timeout {
+              puts "\nTimeout occurred while waiting for command completion"
+              exit 1
+          }
+          eof {
+              puts "\nCommand exited unexpectedly"
+              exit 1
+          }
+      }
+
+runcmd:
+  - ["bash", "/root/setup_proxmox.sh"]
