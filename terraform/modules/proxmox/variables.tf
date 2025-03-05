@@ -1,8 +1,3 @@
-variable "aws_region" {
-  description = "AWS region for deployment"
-  default = "us-east-1"
-}
-
 variable "name_prefix" {}
 variable "aws_region" {}
 variable "proxmox_node_count" { type = number }
