@@ -98,8 +98,6 @@ resource "aws_subnet" "sdn" {
   }
 }
 
-
-
 # IAM and SSM for Bastions
 resource "aws_iam_role" "ssm" {
   name = "${var.name_prefix}-proxmox-ssm-role"
@@ -138,27 +136,23 @@ data "aws_ami" "proxmox" {
   }
 }
 
-data "aws_subnet" "mgmt" {
-  id = var.mgmt_subnet_id
-}
-
 resource "aws_security_group" "proxmox" {
   name        = "${var.name_prefix}-proxmox"
   description = "Allow SSH and Proxmox Web UI"
-  vpc_id      = var.vpc_id
+  vpc_id      = aws_vpc.proxmox.id
 
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [data.aws_subnet.mgmt.cidr_block]
+    cidr_blocks = [aws_subnet.mgmt.cidr_block]
   }
 
   ingress {
     from_port   = 8006
     to_port     = 8006
     protocol    = "tcp"
-    cidr_blocks = [data.aws_subnet.mgmt.cidr_block]
+    cidr_blocks = [aws_subnet.mgmt.cidr_block]
   }
 
   egress {
@@ -185,7 +179,7 @@ resource "tls_private_key" "root_ssh" {
 
 resource "aws_network_interface" "proxmox_mgmt" {
   count           = var.proxmox_node_count
-  subnet_id       = var.mgmt_subnet_id
+  subnet_id       = aws_subnet.mgmt.id
   security_groups = [aws_security_group.proxmox.id]
 
   tags = {
@@ -195,7 +189,7 @@ resource "aws_network_interface" "proxmox_mgmt" {
 
 resource "aws_network_interface" "proxmox_sdn" {
   count           = var.proxmox_node_count
-  subnet_id       = var.sdn_subnet_id
+  subnet_id       = aws_subnet.sdn.id
   security_groups = [aws_security_group.proxmox.id]
 
   tags = {
@@ -212,7 +206,7 @@ resource "aws_network_interface_attachment" "proxmox_sdn" {
 
 resource "aws_ebs_volume" "proxmox_data" {
   count             = var.proxmox_node_count
-  availability_zone = data.aws_subnet.mgmt.availability_zone
+  availability_zone = aws_subnet.mgmt.availability_zone
   size              = var.proxmox_data_volume_size
   type              = "gp3"
   tags = {

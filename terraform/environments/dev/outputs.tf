@@ -1,13 +1,13 @@
 output "vpc_id" {
-  value = module.infra.vpc_id
+  value = module.proxmox.vpc_id
 }
 
 output "mgmt_subnet_id" {
-  value = module.infra.mgmt_subnet_id
+  value = module.proxmox.mgmt_subnet_id
 }
 
 output "sdn_subnet_id" {
-  value = module.infra.sdn_subnet_id
+  value = module.proxmox.sdn_subnet_id
 }
 
 output "instance_id" {
