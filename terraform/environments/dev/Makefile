@@ -22,7 +22,11 @@ port-forward:
 deploy: init check-workspace confirm-deploy apply
 
 init:
-	@terraform init
+	@if [ -f tfstate.config ]; then \
+		terraform init -backend-config=./tfstate.config; \
+	else \
+		terraform init; \
+	fi; \
 
 check-workspace:
 	@CURRENT_WORKSPACE=$$(terraform workspace show); \
