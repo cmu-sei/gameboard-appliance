@@ -3,6 +3,6 @@ terraform {
     region         = "us-east-1"
     key            = "dev/terraform.tfstate"
     bucket         = "foundry-proxmox-terraform-state"
-    use_lockfile   = true
+    dynamodb_table = "foundry-proxmox-terraform-locks"
   }
 }
